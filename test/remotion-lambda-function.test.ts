@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { RemotionLambdaFunction } from '../src/remotion-lambda-function';
 
@@ -106,6 +107,41 @@ describe('RemotionLambdaFunction', () => {
 
       template.hasResourceProperties('AWS::Lambda::Function', {
         Timeout: 600,
+      });
+    });
+  });
+
+  describe('deployment package', () => {
+    it('uses an inline placeholder handler by default', () => {
+      new RemotionLambdaFunction(stack, 'RenderFn', {
+        remotionVersion: '4-0-1',
+        role,
+      });
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Code: {
+          ZipFile: 'exports.handler = async () => ({ statusCode: 200 });',
+        },
+        Handler: 'index.handler',
+      });
+    });
+
+    it('allows consumers to provide a real lambda package asset', () => {
+      new RemotionLambdaFunction(stack, 'RenderFn', {
+        remotionVersion: '4-0-1',
+        role,
+        code: lambda.Code.fromAsset(__dirname),
+        handler: 'render.handler',
+      });
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Code: {
+          S3Bucket: Match.anyValue(),
+          S3Key: Match.anyValue(),
+        },
+        Handler: 'render.handler',
       });
     });
   });

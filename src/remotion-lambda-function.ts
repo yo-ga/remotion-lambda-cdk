@@ -56,6 +56,25 @@ export interface RemotionLambdaFunctionProps {
   readonly remotionVersion: string;
 
   /**
+   * Lambda deployment package for the Remotion render function.
+   *
+   * Pass a ZIP/asset containing the Remotion Lambda handler when deploying a
+   * real renderer, for example `lambda.Code.fromAsset('path/to/lambda.zip')`.
+   * If omitted, a tiny inline placeholder is used so the construct can still
+   * be synthesized in tests and examples.
+   *
+   * @default - inline placeholder handler
+   */
+  readonly code?: lambda.Code;
+
+  /**
+   * Handler exported by the deployment package.
+   *
+   * @default 'index.handler'
+   */
+  readonly handler?: string;
+
+  /**
    * IAM execution role for the Lambda function.
    * Use the role exposed by `RemotionIam`.
    */
@@ -88,6 +107,10 @@ export class RemotionLambdaFunction extends Construct {
       timeoutSeconds = 120,
       ephemeralstorageSizeMb = 2048,
       remotionVersion,
+      code = lambda.Code.fromInline(
+        'exports.handler = async () => ({ statusCode: 200 });',
+      ),
+      handler = 'index.handler',
       role,
     } = props;
 
@@ -134,15 +157,8 @@ export class RemotionLambdaFunction extends Construct {
     this.function = new lambda.Function(this, 'Function', {
       functionName,
       runtime: lambda.Runtime.NODEJS_18_X,
-      // Remotion Lambda requires a real deployment package; here we use an
-      // inline placeholder so the CDK construct can be synthesised and tested
-      // without a real bundle.  In production, consumers should override this
-      // with the actual Remotion render bundle via a custom code prop or by
-      // using Remotion's own deploy CLI.
-      code: lambda.Code.fromInline(
-        'exports.handler = async () => ({ statusCode: 200 });',
-      ),
-      handler: 'index.handler',
+      code,
+      handler,
       memorySize: memorySizeMb,
       timeout: cdk.Duration.seconds(timeoutSeconds),
       ephemeralStorageSize: cdk.Size.mebibytes(ephemeralstorageSizeMb),

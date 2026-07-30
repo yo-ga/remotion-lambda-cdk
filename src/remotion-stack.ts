@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { RemotionIam } from './remotion-iam';
 import { RemotionSiteBucket } from './remotion-site-bucket';
@@ -31,6 +32,20 @@ export interface RemotionStackProps extends cdk.StackProps {
    * @default 2048
    */
   readonly ephemeralstorageSizeMb?: number;
+
+  /**
+   * Lambda deployment package for the Remotion render function.
+   *
+   * @default - inline placeholder handler
+   */
+  readonly lambdaCode?: lambda.Code;
+
+  /**
+   * Handler exported by the Lambda deployment package.
+   *
+   * @default 'index.handler'
+   */
+  readonly lambdaHandler?: string;
 
   /**
    * Automatic expiration (days) for render output objects in S3.
@@ -81,6 +96,8 @@ export class RemotionStack extends cdk.Stack {
       memorySizeMb,
       timeoutSeconds,
       ephemeralstorageSizeMb,
+      lambdaCode,
+      lambdaHandler,
       renderExpirationDays,
       bucketSuffix,
     } = props;
@@ -106,6 +123,8 @@ export class RemotionStack extends cdk.Stack {
       memorySizeMb,
       timeoutSeconds,
       ephemeralstorageSizeMb,
+      code: lambdaCode,
+      handler: lambdaHandler,
       role: this.iam.role,
     });
 

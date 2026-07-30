@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { RemotionStack } from '../src/remotion-stack';
 
@@ -58,6 +59,23 @@ describe('RemotionStack', () => {
       const customTemplate = Template.fromStack(customStack);
       customTemplate.hasResourceProperties('AWS::Lambda::Function', {
         MemorySize: 4096,
+      });
+    });
+
+    it('forwards lambdaCode and lambdaHandler to the Lambda function', () => {
+      const customStack = new RemotionStack(app, 'LambdaCodeStack', {
+        remotionVersion: '4-0-1',
+        lambdaCode: lambda.Code.fromAsset(__dirname),
+        lambdaHandler: 'render.handler',
+        env: { region: 'us-east-1', account: '123456789012' },
+      });
+      const customTemplate = Template.fromStack(customStack);
+      customTemplate.hasResourceProperties('AWS::Lambda::Function', {
+        Code: {
+          S3Bucket: Match.anyValue(),
+          S3Key: Match.anyValue(),
+        },
+        Handler: 'render.handler',
       });
     });
 
