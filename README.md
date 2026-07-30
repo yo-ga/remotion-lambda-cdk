@@ -37,8 +37,15 @@ new RemotionStack(app, 'RemotionStack', {
 });
 ```
 
-To deploy a real renderer, provide a Lambda deployment package that contains
-Remotion's handler instead of the default placeholder:
+By default, the construct uses the official Lambda deployment package shipped
+with `@remotion/lambda` (`remotionlambda-arm64.zip`). Install matching Remotion
+packages in your app and pass the corresponding `remotionVersion` string:
+
+```bash
+npm install @remotion/lambda remotion
+```
+
+For advanced use cases, you can override the Lambda package:
 
 ```typescript
 import * as lambda from 'aws-cdk-lib/aws-lambda';

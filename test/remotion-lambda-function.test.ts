@@ -48,7 +48,7 @@ describe('RemotionLambdaFunction', () => {
   });
 
   describe('runtime and defaults', () => {
-    it('uses Node.js 18.x runtime', () => {
+    it('uses Node.js 24.x runtime and arm64 architecture', () => {
       new RemotionLambdaFunction(stack, 'RenderFn', {
         remotionVersion: '4-0-1',
         role,
@@ -56,7 +56,8 @@ describe('RemotionLambdaFunction', () => {
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::Lambda::Function', {
-        Runtime: 'nodejs18.x',
+        Runtime: 'nodejs24.x',
+        Architectures: ['arm64'],
       });
     });
 
@@ -112,7 +113,7 @@ describe('RemotionLambdaFunction', () => {
   });
 
   describe('deployment package', () => {
-    it('uses an inline placeholder handler by default', () => {
+    it('uses the official Remotion Lambda asset by default', () => {
       new RemotionLambdaFunction(stack, 'RenderFn', {
         remotionVersion: '4-0-1',
         role,
@@ -121,7 +122,8 @@ describe('RemotionLambdaFunction', () => {
 
       template.hasResourceProperties('AWS::Lambda::Function', {
         Code: {
-          ZipFile: 'exports.handler = async () => ({ statusCode: 200 });',
+          S3Bucket: Match.anyValue(),
+          S3Key: Match.anyValue(),
         },
         Handler: 'index.handler',
       });
