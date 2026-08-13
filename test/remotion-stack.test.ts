@@ -51,7 +51,8 @@ describe('RemotionStack', () => {
     });
 
     it('forwards memorySizeMb to the Lambda function', () => {
-      const customStack = new RemotionStack(app, 'CustomStack', {
+      const customApp = new cdk.App();
+      const customStack = new RemotionStack(customApp, 'CustomStack', {
         remotionVersion: '4-0-1',
         memorySizeMb: 4096,
         env: { region: 'us-east-1', account: '123456789012' },
@@ -63,7 +64,8 @@ describe('RemotionStack', () => {
     });
 
     it('forwards lambdaCode and lambdaHandler to the Lambda function', () => {
-      const customStack = new RemotionStack(app, 'LambdaCodeStack', {
+      const customApp = new cdk.App();
+      const customStack = new RemotionStack(customApp, 'LambdaCodeStack', {
         remotionVersion: '4-0-1',
         lambdaCode: lambda.Code.fromAsset(__dirname),
         lambdaHandler: 'render.handler',
@@ -80,7 +82,8 @@ describe('RemotionStack', () => {
     });
 
     it('forwards renderExpirationDays to the S3 bucket', () => {
-      const customStack = new RemotionStack(app, 'ExpireStack', {
+      const customApp = new cdk.App();
+      const customStack = new RemotionStack(customApp, 'ExpireStack', {
         remotionVersion: '4-0-1',
         renderExpirationDays: 14,
         env: { region: 'us-east-1', account: '123456789012' },
@@ -96,7 +99,8 @@ describe('RemotionStack', () => {
     });
 
     it('forwards bucketSuffix to the S3 bucket name', () => {
-      const customStack = new RemotionStack(app, 'SuffixStack', {
+      const customApp = new cdk.App();
+      const customStack = new RemotionStack(customApp, 'SuffixStack', {
         remotionVersion: '4-0-1',
         bucketSuffix: 'myapp',
         env: { region: 'us-east-1', account: '123456789012' },

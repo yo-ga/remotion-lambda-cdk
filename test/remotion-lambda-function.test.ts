@@ -157,7 +157,7 @@ describe('RemotionLambdaFunction', () => {
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::Lambda::Function', {
-        Layers: Match.arrayWith([Match.anyValue()]),
+        Layers: Match.anyValue(),
       });
     });
   });

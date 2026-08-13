@@ -201,12 +201,14 @@ export class RemotionLambdaFunction extends Construct {
     const cfnStack = cdk.Stack.of(this);
 
     // Build layer ARNs mapping for CloudFormation Mappings section
-    const mappings: Record<string, { arns: string }> = {};
+    const mappingValue: Record<string, { arns: string }> = {};
     for (const [region, arns] of Object.entries(REMOTION_LAYER_ARNS)) {
-      mappings[region] = { arns: arns.join(',') };
+      mappingValue[region] = { arns: arns.join(',') };
     }
 
-    cfnStack.addMapping('RemotionLayerArns', mappings);
+    new cdk.CfnMapping(cfnStack, 'RemotionLayerArns', {
+      mapping: mappingValue,
+    });
 
     const layerArns = cdk.Fn.split(
       ',',
