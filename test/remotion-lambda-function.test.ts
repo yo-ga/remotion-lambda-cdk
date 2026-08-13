@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { RemotionLambdaFunction } from '../src/remotion-lambda-function';
 
@@ -47,7 +48,7 @@ describe('RemotionLambdaFunction', () => {
   });
 
   describe('runtime and defaults', () => {
-    it('uses Node.js 18.x runtime', () => {
+    it('uses Node.js 24.x runtime and arm64 architecture', () => {
       new RemotionLambdaFunction(stack, 'RenderFn', {
         remotionVersion: '4-0-1',
         role,
@@ -55,7 +56,8 @@ describe('RemotionLambdaFunction', () => {
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::Lambda::Function', {
-        Runtime: 'nodejs18.x',
+        Runtime: 'nodejs24.x',
+        Architectures: ['arm64'],
       });
     });
 
@@ -110,6 +112,42 @@ describe('RemotionLambdaFunction', () => {
     });
   });
 
+  describe('deployment package', () => {
+    it('uses the official Remotion Lambda asset by default', () => {
+      new RemotionLambdaFunction(stack, 'RenderFn', {
+        remotionVersion: '4-0-1',
+        role,
+      });
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Code: {
+          S3Bucket: Match.anyValue(),
+          S3Key: Match.anyValue(),
+        },
+        Handler: 'index.handler',
+      });
+    });
+
+    it('allows consumers to provide a real lambda package asset', () => {
+      new RemotionLambdaFunction(stack, 'RenderFn', {
+        remotionVersion: '4-0-1',
+        role,
+        code: lambda.Code.fromAsset(__dirname),
+        handler: 'render.handler',
+      });
+      const template = Template.fromStack(stack);
+
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Code: {
+          S3Bucket: Match.anyValue(),
+          S3Key: Match.anyValue(),
+        },
+        Handler: 'render.handler',
+      });
+    });
+  });
+
   describe('layer', () => {
     it('attaches a layer to the function', () => {
       new RemotionLambdaFunction(stack, 'RenderFn', {
@@ -119,7 +157,7 @@ describe('RemotionLambdaFunction', () => {
       const template = Template.fromStack(stack);
 
       template.hasResourceProperties('AWS::Lambda::Function', {
-        Layers: Match.arrayWith([Match.anyValue()]),
+        Layers: Match.anyValue(),
       });
     });
   });

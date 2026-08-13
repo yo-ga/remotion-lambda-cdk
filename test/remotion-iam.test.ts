@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Template, Match } from 'aws-cdk-lib/assertions';
 import { RemotionIam } from '../src/remotion-iam';
 
 describe('RemotionIam', () => {
@@ -39,8 +39,8 @@ describe('RemotionIam', () => {
         Policies: [
           {
             PolicyDocument: {
-              Statement: expect.arrayContaining([
-                expect.objectContaining({
+              Statement: Match.arrayWith([
+                Match.objectLike({
                   Action: 'lambda:InvokeFunction',
                   Resource: 'arn:aws:lambda:*:*:function:remotion-render-*',
                 }),
@@ -60,8 +60,8 @@ describe('RemotionIam', () => {
         Policies: [
           {
             PolicyDocument: {
-              Statement: expect.arrayContaining([
-                expect.objectContaining({
+              Statement: Match.arrayWith([
+                Match.objectLike({
                   Resource: 'arn:aws:s3:::remotionlambda-*',
                 }),
               ]),
@@ -96,8 +96,8 @@ describe('RemotionIam', () => {
 
       template.hasResourceProperties('AWS::IAM::ManagedPolicy', {
         PolicyDocument: {
-          Statement: expect.arrayContaining([
-            expect.objectContaining({
+          Statement: Match.arrayWith([
+            Match.objectLike({
               Action: 'iam:PassRole',
               Resource: 'arn:aws:iam::*:role/remotion-lambda-role',
             }),
@@ -112,10 +112,10 @@ describe('RemotionIam', () => {
 
       template.hasResourceProperties('AWS::IAM::ManagedPolicy', {
         PolicyDocument: {
-          Statement: expect.arrayContaining([
-            expect.objectContaining({
+          Statement: Match.arrayWith([
+            Match.objectLike({
               Action: 'lambda:GetLayerVersion',
-              Resource: expect.arrayContaining([
+              Resource: Match.arrayWith([
                 'arn:aws:lambda:*:678892195805:layer:remotion-binaries-*',
               ]),
             }),

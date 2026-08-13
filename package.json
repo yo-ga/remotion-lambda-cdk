@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "eslint src --ext .ts",
     "clean": "rm -rf lib"
   },
@@ -22,6 +22,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@remotion/lambda": "^4.0.502",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
@@ -34,6 +35,7 @@
     "typescript": "^5.4.0"
   },
   "peerDependencies": {
+    "@remotion/lambda": "^4.0.0",
     "aws-cdk-lib": "^2.150.0",
     "constructs": "^10.0.0"
   },

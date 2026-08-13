@@ -32,7 +32,30 @@ import { RemotionStack } from 'remotion-lambda-cdk';
 
 const app = new cdk.App();
 new RemotionStack(app, 'RemotionStack', {
-  region: 'us-east-1',
+  remotionVersion: '4-0-272',
+  env: { region: 'us-east-1', account: '123456789012' },
+});
+```
+
+By default, the construct uses the official Lambda deployment package shipped
+with `@remotion/lambda` (`remotionlambda-arm64.zip`). Install matching Remotion
+packages in your app and pass the corresponding `remotionVersion` string:
+
+```bash
+npm install @remotion/lambda remotion
+```
+
+For advanced use cases, you can override the Lambda package:
+
+```typescript
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { RemotionStack } from 'remotion-lambda-cdk';
+
+new RemotionStack(app, 'RemotionStack', {
+  remotionVersion: '4-0-272',
+  lambdaCode: lambda.Code.fromAsset('dist/remotion-lambda.zip'),
+  lambdaHandler: 'index.handler',
+  env: { region: 'us-east-1', account: '123456789012' },
 });
 ```
 

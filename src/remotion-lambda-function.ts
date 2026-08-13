@@ -1,27 +1,107 @@
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
 /**
- * Remotion-provided Chromium layer ARNs per region.
+ * Remotion-provided runtime layer ARNs per region.
  * Layer account: 678892195805 (Remotion)
  *
  * @see https://www.remotion.dev/docs/lambda/runtime
  */
-const REMOTION_LAYER_ARNS: Record<string, string> = {
-  'us-east-1': 'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'us-east-2': 'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'us-west-2': 'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'eu-west-1': 'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'eu-west-2': 'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'eu-central-1': 'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'ap-southeast-1': 'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'ap-southeast-2': 'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'ap-northeast-1': 'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'ap-south-1': 'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'sa-east-1': 'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
-  'ca-central-1': 'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-chromium-x86-64:1',
+const REMOTION_LAYER_ARNS: Record<string, string[]> = {
+  'us-east-1': [
+    'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-fonts-arm64:31',
+    'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-chromium-arm64:39',
+    'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'us-east-2': [
+    'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-fonts-arm64:26',
+    'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'us-west-2': [
+    'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-fonts-arm64:26',
+    'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'eu-west-1': [
+    'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-fonts-arm64:27',
+    'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'eu-west-2': [
+    'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-fonts-arm64:26',
+    'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'eu-central-1': [
+    'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-fonts-arm64:64',
+    'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium-arm64:64',
+    'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-emoji-google-arm64:26',
+    'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-cjk-arm64:26',
+  ],
+  'ap-southeast-1': [
+    'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-fonts-arm64:26',
+    'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'ap-southeast-2': [
+    'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-fonts-arm64:26',
+    'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'ap-northeast-1': [
+    'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-fonts-arm64:26',
+    'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'ap-south-1': [
+    'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-fonts-arm64:26',
+    'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-chromium-arm64:30',
+    'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-emoji-google-arm64:14',
+    'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-cjk-arm64:14',
+  ],
+  'sa-east-1': [
+    'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-fonts-arm64:22',
+    'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-chromium-arm64:22',
+    'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-emoji-google-arm64:13',
+    'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-cjk-arm64:13',
+  ],
+  'ca-central-1': [
+    'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-fonts-arm64:22',
+    'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-chromium-arm64:22',
+    'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-emoji-google-arm64:13',
+    'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-cjk-arm64:13',
+  ],
+};
+
+const REMOTION_LAMBDA_ZIP = 'remotionlambda-arm64.zip';
+
+const remotionRuntime = new lambda.Runtime('nodejs24.x', lambda.RuntimeFamily.NODEJS, {
+  supportsInlineCode: true,
+});
+
+const remotionLambdaCode = (): lambda.Code => {
+  try {
+    const packageJsonPath = require.resolve('@remotion/lambda/package.json');
+    return lambda.Code.fromAsset(
+      path.resolve(path.dirname(packageJsonPath), REMOTION_LAMBDA_ZIP),
+    );
+  } catch (err) {
+    throw new Error(
+      'Unable to locate the official Remotion Lambda bundle. Install @remotion/lambda or pass `code` / `lambdaCode` explicitly.',
+    );
+  }
 };
 
 /**
@@ -56,6 +136,24 @@ export interface RemotionLambdaFunctionProps {
   readonly remotionVersion: string;
 
   /**
+   * Lambda deployment package for the Remotion render function.
+   *
+   * By default, the construct uses the official `remotionlambda-arm64.zip`
+   * asset shipped by `@remotion/lambda`. Pass this prop only if you need to
+   * override that package.
+   *
+   * @default - official @remotion/lambda arm64 bundle
+   */
+  readonly code?: lambda.Code;
+
+  /**
+   * Handler exported by the deployment package.
+   *
+   * @default 'index.handler'
+   */
+  readonly handler?: string;
+
+  /**
    * IAM execution role for the Lambda function.
    * Use the role exposed by `RemotionIam`.
    */
@@ -67,8 +165,9 @@ export interface RemotionLambdaFunctionProps {
  *
  * The function:
  * - Is named `remotion-render-{mem}mb-{timeout}s-{version}` to match IAM policy patterns
- * - Attaches the Remotion-provided Chromium layer for the deployment region
- * - Uses Node.js 18.x runtime (current Remotion Lambda recommendation)
+ * - Uses the official Remotion Lambda bundle from `@remotion/lambda` by default
+ * - Attaches the Remotion-provided runtime layers for the deployment region
+ * - Uses Node.js 24.x runtime and arm64 architecture to match the official bundle
  * - Has configurable memory, timeout, and ephemeral storage
  * - Maximum retry attempts set to 0 (Remotion manages retries internally)
  *
@@ -88,66 +187,50 @@ export class RemotionLambdaFunction extends Construct {
       timeoutSeconds = 120,
       ephemeralstorageSizeMb = 2048,
       remotionVersion,
+      code = remotionLambdaCode(),
+      handler = 'index.handler',
       role,
     } = props;
 
     // Function name must match remotion-render-* for IAM policies to apply
     const functionName = `remotion-render-${memorySizeMb}mb-${timeoutSeconds}s-${remotionVersion}`;
 
-    // Resolve the Chromium layer ARN for the deployment region.
-    // cdk.Aws.REGION resolves at deploy time; fall back to a sensible default
-    // pattern for the layer ARN using a CloudFormation Sub.
-    const layerArn = cdk.Fn.select(
-      0,
-      cdk.Fn.split(
-        '|',
-        cdk.Fn.findInMap(
-          'RemotionLayerArns',
-          cdk.Aws.REGION,
-          'arn',
-        ),
-      ),
-    );
-
     // Embed the layer ARN mapping as a CloudFormation Mapping so region
     // selection works at deploy time without requiring environment-specific
     // synthesis.
     const cfnStack = cdk.Stack.of(this);
-    (cfnStack as any).addTransform = (cfnStack as any).addTransform; // no-op guard
 
     // Build layer ARNs mapping for CloudFormation Mappings section
-    const mappings: Record<string, { arn: string }> = {};
-    for (const [region, arn] of Object.entries(REMOTION_LAYER_ARNS)) {
-      mappings[region] = { arn };
+    const mappingValue: Record<string, { arns: string }> = {};
+    for (const [region, arns] of Object.entries(REMOTION_LAYER_ARNS)) {
+      mappingValue[region] = { arns: arns.join(',') };
     }
 
-    // Add CloudFormation Mapping
-    cfnStack.addMapping('RemotionLayerArns', mappings as any);
+    new cdk.CfnMapping(cfnStack, 'RemotionLayerArns', {
+      mapping: mappingValue,
+    });
 
-    // Look up the Chromium layer from the ARN
-    const chromiumLayer = lambda.LayerVersion.fromLayerVersionArn(
-      this,
-      'ChromiumLayer',
-      layerArn,
+    const layerArns = cdk.Fn.split(
+      ',',
+      cdk.Fn.findInMap('RemotionLayerArns', cdk.Aws.REGION, 'arns'),
+      4,
+    );
+
+    const layers = layerArns.map((arn, index) =>
+      lambda.LayerVersion.fromLayerVersionArn(this, `Layer${index}`, arn),
     );
 
     this.function = new lambda.Function(this, 'Function', {
       functionName,
-      runtime: lambda.Runtime.NODEJS_18_X,
-      // Remotion Lambda requires a real deployment package; here we use an
-      // inline placeholder so the CDK construct can be synthesised and tested
-      // without a real bundle.  In production, consumers should override this
-      // with the actual Remotion render bundle via a custom code prop or by
-      // using Remotion's own deploy CLI.
-      code: lambda.Code.fromInline(
-        'exports.handler = async () => ({ statusCode: 200 });',
-      ),
-      handler: 'index.handler',
+      runtime: remotionRuntime,
+      architecture: lambda.Architecture.ARM_64,
+      code,
+      handler,
       memorySize: memorySizeMb,
       timeout: cdk.Duration.seconds(timeoutSeconds),
       ephemeralStorageSize: cdk.Size.mebibytes(ephemeralstorageSizeMb),
       role,
-      layers: [chromiumLayer],
+      layers,
       environment: {
         REMOTION_VERSION: remotionVersion,
       },
